@@ -43,6 +43,11 @@ class SearchResultList extends Component<Props, State> {
     this.fetchPokemonCards(this.props.query);
   }
 
+  componentDidUpdate(previousProps: Props) {
+    if (previousProps.query === this.props.query) return;
+    this.fetchPokemonCards(this.props.query);
+  }
+
   fetchPokemonCards(query: string, page: number = 1) {
     const limit: number = 20;
     const offset: number = (page - 1) * limit;
@@ -74,10 +79,9 @@ class SearchResultList extends Component<Props, State> {
       });
   }
   render() {
-    const { pokemon } = this.state;
     return (
       <div className="search-result-list">
-        {pokemon.map((item, index) => (
+        {this.state.pokemon.map((item, index) => (
           <Card key={index} data={item} />
         ))}
       </div>

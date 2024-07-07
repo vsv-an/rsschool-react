@@ -48,3 +48,10 @@
 .read-the-docs {
   color: #888;
 }
+
+.error-button {
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  background: red;
+}

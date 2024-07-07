@@ -6,22 +6,50 @@ import './App.css';
 
 interface State {
   query: string;
+  throwError: boolean;
 }
 
-class App extends Component<State> {
-  state: State = {
-    query: localStorage.getItem('query') || '',
+type Props = Record<string, never>;
+class App extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      query: localStorage.getItem('query') ?? '',
+      throwError: false,
+    };
+  }
+
+  onSearchSubmit = (query: string) => {
+    localStorage.setItem('query', query);
+    this.setState({ query });
   };
+
+  throwError = () => {
+    throw new Error('Test error');
+  };
+
   render() {
     return (
       <div className="App">
         <h1>Hello!</h1>
         <div className="search-panel">
-          <SearchPanel />
+          <SearchPanel
+            query={this.state.query}
+            onSubmit={this.onSearchSubmit}
+          />
         </div>
         <div className="search-result-list">
           <SearchResultList query={this.state.query} />
         </div>
+        {this.state.throwError && this.throwError()}
+        <button
+          className="error-button"
+          onClick={() => {
+            this.setState({ throwError: true });
+          }}
+        >
+          Throw Error
+        </button>
       </div>
     );
   }
