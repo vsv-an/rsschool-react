@@ -1,0 +1,7 @@
+.loader {
+  position: fixed;
+  top: 50px;
+  right: 100px;
+  color: #000;
+  border: 1px solid #fff;
+}

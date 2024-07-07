@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import axios from 'axios';
+import Loader from '../Loader/Loader';
 import Card from '../Card/Card';
 import './SearchResultList.css';
 
@@ -80,11 +81,14 @@ class SearchResultList extends Component<Props, State> {
   }
   render() {
     return (
-      <div className="search-result-list">
-        {this.state.pokemon.map((item, index) => (
-          <Card key={index} data={item} />
-        ))}
-      </div>
+      <>
+        {this.state.loading && <Loader />}
+        <div className="search-result-list">
+          {this.state.pokemon.map((item, index) => (
+            <Card key={index} data={item} />
+          ))}
+        </div>
+      </>
     );
   }
 }
