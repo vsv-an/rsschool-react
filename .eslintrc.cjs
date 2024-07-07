@@ -31,6 +31,6 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     'react/jsx-uses-react': 'off',
     'react/react-in-jsx-scope': 'off',
-    "react-compiler/react-compiler": "error"
+    'react-compiler/react-compiler': 'error',
   },
 };

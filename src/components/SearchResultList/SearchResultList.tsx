@@ -1,0 +1,88 @@
+import { Component } from 'react';
+import axios from 'axios';
+import Card from '../Card/Card';
+import './SearchResultList.css';
+
+interface ApiResponse {
+  results: ApiPokemon[];
+  next: string | null;
+}
+
+interface ApiPokemon {
+  name: string;
+  url: string;
+}
+
+export interface Pokemon {
+  name: string;
+  image: string;
+}
+
+interface Props {
+  query: string;
+}
+
+interface State {
+  pokemon: Pokemon[];
+  loading: boolean;
+  error?: boolean;
+  nextPageUrl: string | null;
+  currentPage: number;
+}
+
+class SearchResultList extends Component<Props, State> {
+  state: State = {
+    pokemon: [],
+    loading: false,
+    error: false,
+    nextPageUrl: null,
+    currentPage: 1,
+  };
+
+  componentDidMount() {
+    this.fetchPokemonCards(this.props.query);
+  }
+
+  fetchPokemonCards(query: string, page: number = 1) {
+    const limit: number = 20;
+    const offset: number = (page - 1) * limit;
+    const apiUrl: string = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`;
+    axios
+      .get<ApiResponse>(apiUrl)
+      .then(async (response) => {
+        const persons = response.data.results
+          .filter((item: ApiPokemon) => item.name.includes(query))
+          .map(async (item: ApiPokemon) => {
+            const pokemonInfo = await axios.get(item.url);
+            return {
+              name: item.name,
+              image: pokemonInfo.data.sprites.front_default,
+            };
+          });
+
+        const fetchedPokemonCards = await Promise.all(persons);
+        this.setState((prevState) => ({
+          pokemon: [...prevState.pokemon, ...fetchedPokemonCards],
+          loading: false,
+          nextPageUrl: response.data.next,
+          currentPage: page,
+        }));
+      })
+      .catch((error) => {
+        console.error('Error fetching Pokemon data:', error);
+        this.setState({ loading: false, error: true });
+      });
+  }
+  render() {
+    const { pokemon } = this.state;
+    return (
+      <div className="search-result-list">
+        {pokemon.map((item, index) => (
+          <Card key={index} data={item} />
+        ))}
+      </div>
+    );
+  }
+}
+
+export default SearchResultList;
