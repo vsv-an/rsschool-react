@@ -1,7 +1,16 @@
+.result-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .search-result-list {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+h3 {
+  margin-top: 50px;
 }

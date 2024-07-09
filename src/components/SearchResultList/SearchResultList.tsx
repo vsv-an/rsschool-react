@@ -34,7 +34,7 @@ interface State {
 class SearchResultList extends Component<Props, State> {
   state: State = {
     pokemon: [],
-    loading: false,
+    loading: true,
     error: false,
     nextPageUrl: null,
     currentPage: 1,
@@ -81,14 +81,15 @@ class SearchResultList extends Component<Props, State> {
   }
   render() {
     return (
-      <>
-        {this.state.loading && <Loader />}
+      <div className="result-container">
+        <div>{this.state.loading && <Loader />}</div>
+        <h3>Result:</h3>
         <div className="search-result-list">
           {this.state.pokemon.map((item, index) => (
             <Card key={index} data={item} />
           ))}
         </div>
-      </>
+      </div>
     );
   }
 }
