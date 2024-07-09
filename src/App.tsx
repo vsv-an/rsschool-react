@@ -24,11 +24,11 @@ class App extends Component<Props, State> {
     this.setState({ query });
   };
 
-  throwError = () => {
-    throw new Error('Test error');
-  };
-
   render() {
+    if (this.state.throwError) {
+      throw new Error('I crashed');
+    }
+
     return (
       <div className="App">
         <h1>Hello!</h1>
@@ -41,7 +41,6 @@ class App extends Component<Props, State> {
         <div className="search-result-list">
           <SearchResultList query={this.state.query} />
         </div>
-        {this.state.throwError && this.throwError()}
         <button
           className="error-button"
           onClick={() => {
