@@ -1,57 +1,41 @@
-import { Component } from 'react';
-
+import { useState } from 'react';
 import SearchPanel from './components/SearchPanel/SearchPanel';
 import SearchResultList from './components/SearchResultList/SearchResultList';
 import './App.css';
 
-interface State {
-  query: string;
-  throwError: boolean;
-}
+const LS_QUERY_STATE = 'QueryState';
 
-type Props = Record<string, never>;
-class App extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      query: localStorage.getItem('query') ?? '',
-      throwError: false,
-    };
-  }
+function App() {
+  const [needThrowError, setNeedThrowError] = useState(false);
+  const [query, setQuery] = useState(
+    localStorage.getItem(LS_QUERY_STATE ?? ''),
+  );
 
-  onSearchSubmit = (query: string) => {
-    localStorage.setItem('query', query);
-    this.setState({ query });
+  const onSearchSubmit = (query: string) => {
+    localStorage.setItem(LS_QUERY_STATE, query);
+    setQuery(query);
   };
 
-  render() {
-    if (this.state.throwError) {
-      throw new Error('I crashed');
-    }
+  const throwError = () => {
+    throw new Error('I crashed');
+  };
 
-    return (
-      <div className="App">
-        <h1>Hello!</h1>
-        <div className="search-panel">
-          <SearchPanel
-            query={this.state.query}
-            onSubmit={this.onSearchSubmit}
-          />
-        </div>
-        <div className="search-result-list">
-          <SearchResultList query={this.state.query} />
-        </div>
-        <button
-          className="error-button"
-          onClick={() => {
-            this.setState({ throwError: true });
-          }}
-        >
-          Throw Error
-        </button>
+  return (
+    <div className="App">
+      <h1>Hello!</h1>
+      <div className="search-panel">
+        <SearchPanel initQuery={query} onSubmit={onSearchSubmit} />
       </div>
-    );
-  }
+      <div className="search-result-list">
+        <SearchResultList query={query} />
+      </div>
+      <button className="error-button" onClick={() => setNeedThrowError(true)}>
+        Throw Error
+      </button>
+
+      {needThrowError && throwError()}
+    </div>
+  );
 }
 
 export default App;
