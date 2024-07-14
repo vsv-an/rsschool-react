@@ -1,20 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchPanel from './components/SearchPanel/SearchPanel';
 import SearchResultList from './components/SearchResultList/SearchResultList';
+import useStoredQuery from './hooks/useStoredQuery';
 import './App.css';
 
 const LS_QUERY_STATE = 'QueryState';
 
 function App() {
   const [needThrowError, setNeedThrowError] = useState(false);
-  const [query, setQuery] = useState(
-    localStorage.getItem(LS_QUERY_STATE ?? ''),
-  );
+  const [query, setQuery] = useStoredQuery(LS_QUERY_STATE, '');
 
   const onSearchSubmit = (query: string) => {
-    localStorage.setItem(LS_QUERY_STATE, query);
     setQuery(query);
   };
+
+  console.log(query);
+
+  useEffect(() => {});
 
   const throwError = () => {
     throw new Error('I crashed');
