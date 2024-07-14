@@ -24,20 +24,30 @@ interface Props {
 }
 
 const SearchResultList: React.FC<Props> = ({ query }) => {
-  const [pokemon, setPokemon] = useState<Pokemon[]>([]);
+  const [pokemonData, setPokemonData] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [url, setUrl] = useState('https://pokeapi.co/api/v2/pokemon');
+  const [prevUrl, setPrevUrl] = useState();
+  const [nextUrl, setNextUrl] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const currentPageIncrement = () => {
+    setCurrentPage(currentPage + 1);
+  };
+
+  const currentPageDecrement = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   useEffect(() => {
-    fetchPokemonCards(query);
-  }, [query]);
+    fetchPokemonCards(query, url);
+  }, [query, url]);
 
-  const fetchPokemonCards = async (query: string, page: number = 1) => {
-    const limit = 20;
-    const offset = (page - 1) * limit;
-    const apiUrl = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`;
-
+  const fetchPokemonCards = async (query: string, url: string) => {
     try {
-      const response = await axios.get<ApiResponse>(apiUrl);
+      const response = await axios.get<ApiResponse>(url);
       const filteredPokemon = await Promise.all(
         response.data.results
           .filter((item: ApiPokemon) => item.name.includes(query))
@@ -48,9 +58,11 @@ const SearchResultList: React.FC<Props> = ({ query }) => {
               image: pokemonInfo.data.sprites.front_default,
             };
           }),
+        setNextUrl(response.data.next),
+        setPrevUrl(response.data.previous),
       );
 
-      setPokemon((prev) => [...prev, ...filteredPokemon]);
+      setPokemonData((prev) => [...prev, ...filteredPokemon]);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching Pokemon data:', error);
@@ -61,9 +73,39 @@ const SearchResultList: React.FC<Props> = ({ query }) => {
   return (
     <div className="result-container">
       {loading && <Loader />}
+      <div className="pagination">
+        {prevUrl && (
+          <button
+            onClick={() => {
+              setPokemonData([]);
+              setUrl(prevUrl);
+              {
+                currentPageDecrement();
+              }
+            }}
+          >
+            Prev
+          </button>
+        )}
+        <span>{currentPage}</span>
+        {nextUrl && (
+          <button
+            onClick={() => {
+              setPokemonData([]);
+              setUrl(nextUrl);
+              {
+                currentPageIncrement();
+              }
+            }}
+          >
+            Next
+          </button>
+        )}
+      </div>
+
       <h3>Result:</h3>
       <div className="search-result-list">
-        {pokemon.map((item, index) => (
+        {pokemonData.map((item, index) => (
           <Card key={index} data={item} />
         ))}
       </div>
