@@ -1,4 +1,5 @@
 .loader {
+  display: flex;
   color: #fff;
   transition: all 5s linear;
 }

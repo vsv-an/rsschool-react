@@ -21,3 +21,8 @@ h3 {
   align-items: center;
   gap: 20px;
 }
+
+button:disabled {
+  cursor: default;
+  border: none;
+}
