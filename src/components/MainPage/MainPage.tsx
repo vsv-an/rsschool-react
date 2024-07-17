@@ -3,6 +3,7 @@ import SearchPanel from '../SearchPanel/SearchPanel';
 import SearchResultList from '../SearchResultList/SearchResultList';
 import useStoredQuery from '../../hooks/useStoredQuery';
 import './MainPage.css';
+import { Outlet } from 'react-router-dom';
 
 const LS_QUERY_STATE = 'QueryState';
 
@@ -32,6 +33,7 @@ const MainPage = () => {
       </div>
       <div className="search-result-list">
         <SearchResultList query={query} />
+        <Outlet />
       </div>
       <button className="error-button" onClick={() => setNeedThrowError(true)}>
         Throw Error

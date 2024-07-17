@@ -1,22 +1,19 @@
+import React from 'react';
 import { Pokemon } from '../SearchResultList/SearchResultList';
 import './Card.css';
 
-interface Props {
+interface CardProps {
   data: Pokemon;
+  onClick: () => void;
 }
 
-function Card({ data }: Props) {
+const Card: React.FC<CardProps> = ({ data, onClick }) => {
   return (
-    <div className="card">
-      <h3>{data.id}</h3>
-      <img
-        src={data.sprites.front_default}
-        className="card-img"
-        alt={data.name}
-      />
-      <p>{data.name}</p>
+    <div className="card" onClick={onClick}>
+      <h2>{data.name}</h2>
+      <img src={data.sprites.front_default} alt={data.name} />
     </div>
   );
-}
+};
 
 export default Card;

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import Loader from '../Loader/Loader';
 import Card from '../Card/Card';
+import PokemonInfo from '../PokemonInfo/PokemonInfo';
 import './SearchResultList.css';
 import { useSearchParams } from 'react-router-dom';
 
@@ -19,8 +20,7 @@ interface ApiPokemon {
 export interface Pokemon {
   id: number;
   name: string;
-  sprites: string;
-  front_default: string;
+  sprites: { front_default: string };
 }
 
 interface Props {
@@ -35,13 +35,16 @@ const SearchResultList: React.FC<Props> = ({ query }) => {
   const page = parseInt(searchParams.get('page') as string) || 1;
   const [prevUrl, setPrevUrl] = useState<string>('');
   const [nextUrl, setNextUrl] = useState<string>('');
+  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
 
   const changePage = useCallback(
     (page: number) => {
-      setSearchParams({ page: page.toString() });
+      setSearchParams(`page=${page}`);
     },
     [setSearchParams],
   );
+
+  console.log(searchParams.toString());
 
   const fetchPokemonCards = useCallback(
     async (query: string, url: string, page: number) => {
@@ -80,6 +83,16 @@ const SearchResultList: React.FC<Props> = ({ query }) => {
     fetchPokemonCards(query, url, page);
   }, [query, url, page, fetchPokemonCards]);
 
+  const handleCardClick = (pokemon: Pokemon) => {
+    setSelectedPokemon(pokemon);
+    setSearchParams(`page=${page}&deatails=${pokemon.name}`);
+  };
+
+  const handleClosePokemonInfo = () => {
+    setSelectedPokemon(null);
+    setSearchParams(`page=${page}`);
+  };
+
   return (
     <div className="result-container">
       <div className="pagination">
@@ -113,10 +126,20 @@ const SearchResultList: React.FC<Props> = ({ query }) => {
           <h3>Result:</h3>
           <div className="search-result-list">
             {pokemonData.map((item) => (
-              <Card key={item.id} data={item} />
+              <Card
+                key={item.id}
+                data={item}
+                onClick={() => handleCardClick(item)}
+              />
             ))}
           </div>
         </>
+      )}
+      {selectedPokemon && (
+        <PokemonInfo
+          pokemon={selectedPokemon}
+          onClose={handleClosePokemonInfo}
+        />
       )}
     </div>
   );
