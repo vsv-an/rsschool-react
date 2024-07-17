@@ -8,7 +8,12 @@ interface Props {
 function Card({ data }: Props) {
   return (
     <div className="card">
-      <img src={data.image} className="card-img" alt={data.name} />
+      <h3>{data.id}</h3>
+      <img
+        src={data.sprites.front_default}
+        className="card-img"
+        alt={data.name}
+      />
       <p>{data.name}</p>
     </div>
   );

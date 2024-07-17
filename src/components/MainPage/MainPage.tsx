@@ -6,7 +6,7 @@ import './MainPage.css';
 
 const LS_QUERY_STATE = 'QueryState';
 
-function MainPage() {
+const MainPage = () => {
   const [needThrowError, setNeedThrowError] = useState(false);
   const [query, setQuery] = useStoredQuery(LS_QUERY_STATE, '');
 
@@ -14,9 +14,11 @@ function MainPage() {
     setQuery(query);
   };
 
-  console.log(query);
-
-  useEffect(() => {});
+  useEffect(() => {
+    if (needThrowError) {
+      throwError();
+    }
+  }, [needThrowError]);
 
   const throwError = () => {
     throw new Error('I crashed');
@@ -34,10 +36,8 @@ function MainPage() {
       <button className="error-button" onClick={() => setNeedThrowError(true)}>
         Throw Error
       </button>
-
-      {needThrowError && throwError()}
     </div>
   );
-}
+};
 
 export default MainPage;

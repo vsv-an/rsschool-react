@@ -7,6 +7,7 @@ interface Props {
 
 function SearchPanel({ initQuery, onSubmit }: Props) {
   const onSubmitClick = (event: React.FormEvent) => {
+    event.preventDefault();
     const form = event.target as HTMLFormElement;
     const data = new FormData(form);
     const query = (data.get('searchQuery') as string) || '';
