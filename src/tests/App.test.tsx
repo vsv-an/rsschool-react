@@ -17,4 +17,5 @@ test('should have hello!', () => {
   );
   const message = screen.getByText(/Hello!/i);
   expect(message).toBeDefined();
+  expect(screen.getByRole('button', { name: /throw error/i })).toBeDefined();
 });
