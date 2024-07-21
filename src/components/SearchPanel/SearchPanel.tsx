@@ -1,48 +1,34 @@
-import { Component } from 'react';
 import './SearchPanel.css';
 
 interface Props {
-  query: string;
-  onSubmit: (query: string) => void;
+  readonly initQuery: string;
+  readonly onSubmit: (query: string) => void;
 }
 
-interface SearchPanelState {
-  query: string;
-}
-
-type State = Readonly<SearchPanelState>;
-class SearchPanel extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { query: this.props.query };
-  }
-
-  onQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ query: event.target.value });
+function SearchPanel({ initQuery, onSubmit }: Props) {
+  const onSubmitClick = (event: React.FormEvent) => {
+    event.preventDefault();
+    const form = event.target as HTMLFormElement;
+    const data = new FormData(form);
+    const query = (data.get('searchQuery') as string) || '';
+    onSubmit(query.trim());
   };
 
-  onSubmit = () => {
-    // event.preventDefault();
-    this.props.onSubmit(this.state.query.trim());
-  };
-
-  render() {
-    return (
-      <div className="search-panel">
-        <form onSubmit={this.onSubmit}>
-          <input
-            className="input"
-            type="search"
-            placeholder="Search..."
-            autoComplete="off"
-            value={this.state.query}
-            onChange={this.onQueryChange}
-          />
-          <button type="submit">Search</button>
-        </form>
-      </div>
-    );
-  }
+  return (
+    <div className="search-panel">
+      <form onSubmit={onSubmitClick}>
+        <input
+          className="searchQuery"
+          type="search"
+          name="searchQuery"
+          placeholder="Search..."
+          autoComplete="off"
+          defaultValue={initQuery}
+        />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  );
 }
 
 export default SearchPanel;

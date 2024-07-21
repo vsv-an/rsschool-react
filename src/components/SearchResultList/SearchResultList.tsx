@@ -1,12 +1,15 @@
-import { Component } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import Loader from '../Loader/Loader';
 import Card from '../Card/Card';
+import PokemonInfo from '../PokemonInfo/PokemonInfo';
 import './SearchResultList.css';
+import { useSearchParams } from 'react-router-dom';
 
 interface ApiResponse {
   results: ApiPokemon[];
-  next: string | null;
+  next: string;
+  previous: string;
 }
 
 interface ApiPokemon {
@@ -15,83 +18,131 @@ interface ApiPokemon {
 }
 
 export interface Pokemon {
+  id: number;
   name: string;
-  image: string;
+  sprites: { front_default: string };
 }
 
 interface Props {
   query: string;
 }
 
-interface State {
-  pokemon: Pokemon[];
-  loading: boolean;
-  error?: boolean;
-  nextPageUrl: string | null;
-  currentPage: number;
-}
+const SearchResultList: React.FC<Props> = ({ query }) => {
+  const [pokemonData, setPokemonData] = useState<Pokemon[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [url, setUrl] = useState('https://pokeapi.co/api/v2/pokemon');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = parseInt(searchParams.get('page') as string) || 1;
+  const [prevUrl, setPrevUrl] = useState<string>('');
+  const [nextUrl, setNextUrl] = useState<string>('');
+  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
 
-class SearchResultList extends Component<Props, State> {
-  state: State = {
-    pokemon: [],
-    loading: true,
-    error: false,
-    nextPageUrl: null,
-    currentPage: 1,
+  const changePage = useCallback(
+    (page: number) => {
+      setSearchParams(`page=${page}`);
+    },
+    [setSearchParams],
+  );
+
+  console.log(searchParams.toString());
+
+  const fetchPokemonCards = useCallback(
+    async (query: string, url: string, page: number) => {
+      try {
+        setLoading(true);
+        const {
+          data: { results, next, previous },
+        } = await axios.get<ApiResponse>(
+          `${url}?limit=20&offset=${(page - 1) * 20}`,
+        );
+
+        setNextUrl(next);
+        setPrevUrl(previous);
+
+        const filteredResults = results.filter((item) =>
+          item.name.includes(query),
+        );
+        const fetchedPokemonData = await Promise.all(
+          filteredResults.map(async (item) => {
+            const { data } = await axios.get<Pokemon>(item.url);
+            return data;
+          }),
+        );
+
+        setPokemonData(fetchedPokemonData.sort((a, b) => a.id - b.id));
+      } catch (error) {
+        console.error('Error fetching Pokemon data:', error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    fetchPokemonCards(query, url, page);
+  }, [query, url, page, fetchPokemonCards]);
+
+  const handleCardClick = (pokemon: Pokemon) => {
+    setSelectedPokemon(pokemon);
+    setSearchParams(`page=${page}&deatails=${pokemon.name}`);
   };
 
-  componentDidMount() {
-    this.fetchPokemonCards(this.props.query);
-  }
+  const handleClosePokemonInfo = () => {
+    setSelectedPokemon(null);
+    setSearchParams(`page=${page}`);
+  };
 
-  componentDidUpdate(previousProps: Props) {
-    if (previousProps.query === this.props.query) return;
-    this.fetchPokemonCards(this.props.query);
-  }
-
-  fetchPokemonCards(query: string, page: number = 1) {
-    const limit: number = 20;
-    const offset: number = (page - 1) * limit;
-    const apiUrl: string = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`;
-    axios
-      .get<ApiResponse>(apiUrl)
-      .then(async (response) => {
-        const persons = response.data.results
-          .filter((item: ApiPokemon) => item.name.includes(query))
-          .map(async (item: ApiPokemon) => {
-            const pokemonInfo = await axios.get(item.url);
-            return {
-              name: item.name,
-              image: pokemonInfo.data.sprites.front_default,
-            };
-          });
-
-        const fetchedPokemonCards = await Promise.all(persons);
-        this.setState((prevState) => ({
-          pokemon: [...prevState.pokemon, ...fetchedPokemonCards],
-          loading: false,
-          nextPageUrl: response.data.next,
-          currentPage: page,
-        }));
-      })
-      .catch((error) => {
-        console.error('Error fetching Pokemon data:', error);
-        this.setState({ loading: false, error: true });
-      });
-  }
-  render() {
-    return (
-      <div className="result-container">
-        <div>{this.state.loading && <Loader />}</div>
-        <h3>Result:</h3>
-        <div className="search-result-list">
-          {this.state.pokemon.map((item, index) => (
-            <Card key={index} data={item} />
-          ))}
-        </div>
+  return (
+    <div className="result-container">
+      <div className="pagination">
+        <button
+          disabled={page === 1}
+          onClick={() => {
+            if (prevUrl) {
+              setUrl(prevUrl);
+              changePage(page - 1);
+            }
+          }}
+        >
+          Prev
+        </button>
+        <span>{page}</span>
+        <button
+          onClick={() => {
+            if (nextUrl) {
+              setUrl(nextUrl);
+              changePage(page + 1);
+            }
+          }}
+        >
+          Next
+        </button>
       </div>
-    );
-  }
-}
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <h3>Result:</h3>
+          <div className="search-result-list">
+            {pokemonData.map((item) => (
+              <Card
+                key={item.id}
+                data={item}
+                onClick={() => handleCardClick(item)}
+              />
+            ))}
+          </div>
+        </>
+      )}
+      {selectedPokemon && (
+        <PokemonInfo
+          pokemon={selectedPokemon}
+          onClose={handleClosePokemonInfo}
+        />
+      )}
+    </div>
+  );
+};
 
 export default SearchResultList;
