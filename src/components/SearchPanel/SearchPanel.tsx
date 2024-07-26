@@ -16,7 +16,7 @@ function SearchPanel({ initQuery, onSubmit }: Props) {
 
   return (
     <div className="search-panel">
-      <form onSubmit={onSubmitClick}>
+      <form className="search-form" onSubmit={onSubmitClick}>
         <input
           className="searchQuery"
           type="search"

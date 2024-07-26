@@ -1,0 +1,18 @@
+.Switch {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.icon {
+  font-size: 24px;
+  transition: opacity 0.3s;
+}
+
+.icon.active {
+  opacity: 1;
+}
+
+.icon:not(.active) {
+  opacity: 0.3;
+}
