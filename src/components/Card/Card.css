@@ -1,7 +1,9 @@
 .card {
   height: 210px;
   width: 130px;
-  background: rgb(87, 87, 87);
+  background: none;
+  border-style: solid;
   border-radius: 9px;
+  box-shadow: 7px 7px 10px -10px black;
   cursor: pointer;
 }

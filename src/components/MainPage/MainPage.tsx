@@ -4,6 +4,7 @@ import SearchResultList from '../SearchResultList/SearchResultList';
 import useStoredQuery from '../../hooks/useStoredQuery';
 import './MainPage.css';
 import { Outlet } from 'react-router-dom';
+import Switch from '../Switch/Switch';
 
 const LS_QUERY_STATE = 'QueryState';
 
@@ -27,6 +28,7 @@ const MainPage = () => {
 
   return (
     <div className="MainPage">
+      <Switch />
       <h1>Hello!</h1>
       <div className="search-panel">
         <SearchPanel initQuery={query} onSubmit={onSearchSubmit} />
