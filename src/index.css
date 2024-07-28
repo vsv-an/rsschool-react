@@ -28,6 +28,7 @@ h2 {
   align-items: end;
 }
 
+.card,
 .Switch {
   border-color: var(--border);
 }
